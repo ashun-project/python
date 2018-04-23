@@ -4,6 +4,7 @@ import os
 import shutil
 import time
 import re
+import traceback
 import pymysql
 path = "E:\\python\\nothing\\"
 replacePath = "E:\\python\\test\\"
@@ -27,9 +28,16 @@ driver.get('http://www.baidu.com/') #+obj['url']
 # driver.findElement(By.xpath("//span[contains(text(),'hello')]"))  包含匹配
 # driver.findElement(By.xpath("//span[text()='新闻']"))     绝对匹配
 driver.implicitly_wait(6)
+# alllist = os.listdir(replacePath)
+# print(len(alllist), 123)
+spl = 'sdsasdf.aa.aa'
 try:
-    bb = driver.find_element_by_id('lg')
-except:
-    print(123)
-else:
-    print(bb.get_attribute('innerHTML'))
+    aa,bb = spl.split(".")
+except Exception as e:
+    print('err',str(Exception))
+    print('err',str(e))
+url = driver.current_url      
+
+if 'http://www.baidu.com' not in url:
+    print(112, url)
+# driver.close()

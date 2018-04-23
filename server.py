@@ -11,7 +11,7 @@ cursor = conn.cursor()
 num = 1
 computNum = 1
 path = "E:\\python\\nothing\\"
-replacePath = "E:\\vue_node_mysql\\file\\"
+replacePath = "E:\\python\\test\\"
 
 #* 
     # Python用法
@@ -19,6 +19,7 @@ replacePath = "E:\\vue_node_mysql\\file\\"
         #print (ele.get_attribute('innerHTML'))       // 打印某个元素
         #time.sleep(num)                              // 停止等待多少时间，需要引入 import time
         #if 'au' in a:                                // 同等于js的indexOf
+        # import pdb # pdb.set_trace()                // 同等于debugger n往下执行
     #selenium用法    
         # driver.close()                                  // 关闭浏览器
         # driver.implicitly_wait(6)                       // 隐形等待6秒 (智能等待以后换成这种  需要测试)
@@ -77,14 +78,17 @@ def checkOs(currentTime):
     alllist = os.listdir(path)
     if alllist:
         for i in alllist:
-            aa,bb = i.split(".")
-            print(path + name, i, aa, bb)
-            
-            os.rename(path+i, path + name + '.' + bb)
-            oldname =  path + name + '.' + bb
-            shutil.copyfile(oldname,replacePath + name + '.' + bb)
-            os.remove(oldname)
-            computNum = 0
+            print(i)
+            try:
+                aa,bb = i.split(".")
+            except Exception as e:
+                print('i的格式不对吗？', e)
+            else:
+                os.rename(path+i, path + name + '.' + bb)
+                oldname =  path + name + '.' + bb
+                shutil.copyfile(oldname,replacePath + name + '.' + bb)
+                os.remove(oldname)
+                computNum = 0
     else:
         if (computNum < 180):
             sleep(1)
@@ -100,21 +104,24 @@ def getOs(cont,currentTime):
     sleep(1)
     try:
         ev = driver.find_element_by_id('my-set-id')
-    except:
-        print('获取id出错---', currentTime)
+    except Exception as e:
+        print('获取id出错---', e)
     else:
         url = ev.get_attribute('href')
         if os.path.exists('E:\\python\\nothing'):
-            shutil.rmtree('E:\\python\\nothing')  
-            os.mkdir('E:\\python\\nothing')
+            try:
+                shutil.rmtree('E:\\python\\nothing')  
+                os.mkdir('E:\\python\\nothing')
+            except Exception as e:
+                print('操作文件失败---', e)   
         else:
-            os.mkdir('E:\\python\\nothing')         
-        # alllist = os.listdir(path)
-        # for i in alllist:
-        #     os.remove(path+i)
+            os.mkdir('E:\\python\\nothing')
         print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
+        if 'http://www.s8bar.com' not in driver.current_url:
+            driver.execute_script("document.location.href=arguments[0]", url)
+            sleep(3)
         checkOs(currentTime)
      
 def getListDetail(arr):
@@ -125,23 +132,23 @@ def getListDetail(arr):
                 driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
                 driver.implicitly_wait(6)
                 sleep(2)
-            except:
-                print('获取详情是出错-------')
+            except Exception as e:
+                print('获取详情是出错-------', e)
             else:
                 try:
                     cont = driver.find_element_by_xpath('//*[@id="postlist"]/div').find_element_by_class_name('pcb')
                     contHtml = cont.get_attribute('innerHTML')
                     currentTime = int(time.time())
-                except:
-                    print('获取详情内容时出错')
+                except Exception as e:
+                    print('获取详情内容时出错', e)
                 else:
                     addList = "INSERT INTO sanjilist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
                     addDetail = "INSERT INTO sanjidetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
                     try:
                         cursor.execute(addList)
                         cursor.execute(addDetail)
-                    except:
-                        print('执行数据操作出错')
+                    except Exception as e:
+                        print('执行数据操作出错', e)
                     else:
                         # cursor.close()
                         conn.commit()
@@ -154,8 +161,8 @@ def geUrltList ():
     try:
         result = driver.find_elements_by_css_selector(".no-b-border > a[class='s xst']")
         targetA = driver.find_elements_by_css_selector(".img_preview_hidden > .cl > a")
-    except:
-        print('geUrltList-----获取元素出错---停止一天查找原因')
+    except Exception as e:
+        print('geUrltList-----获取元素出错---停止一天查找原因', e)
         sleep(86400)
         init()
     else: 
@@ -184,8 +191,8 @@ def geUrltList ():
                                 img += imgStr+imgList[k].get_attribute('src')
                             break
                 arr.append({'url': url, 'txt': txt, 'img': img})
-        except:
-            print('获取列表出错')
+        except Exception as e:
+            print('获取列表出错', e)
             geUrltList()
         else:
             getListDetail(arr)
@@ -195,8 +202,8 @@ def getPage():
     url = 'http://www.s8bar.com/forum-234-'+ str(num) +'.html'
     try:
         driver.execute_script("document.location.href=arguments[0]", url)
-    except:
-        print('getPage------出错')
+    except Exception as e:
+        print('getPage------出错', e)
         getPage()
     else:
         num = num + 1 
@@ -207,12 +214,12 @@ def init():
     try:
         driver.get('http://www.s8bar.com/') #+obj['url']
         driver.find_element_by_id('goin').click()
-        driver.find_element_by_id('ls_username').send_keys('ashun6')#sexlookashun
-        driver.find_element_by_id('ls_password').send_keys('ashun666')    #ashun666  
+        driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun
+        driver.find_element_by_id('ls_password').send_keys('ashun666')
         driver.find_element_by_class_name('mem_login').click()
         driver.implicitly_wait(6)
-    except:
-        print('init-------出错')
+    except Exception as e:
+        print('init-------出错', e)
         init()
     else:    
         getPage()    
