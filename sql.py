@@ -12,7 +12,7 @@ deDetail = "DROP TABLE IF EXISTS sanjidetail"
 # 增加数据        
 addData = "INSERT INTO LIST(id,name,sex,age)values(30,'san','boy',18)"
 # 查询数据
-searchData = "SELECT * FROM LIST WHERE sex = 'boy'"
+searchData = "SELECT * FROM sanjilist WHERE url = 'boy'"
 # 更新数据
 updateData = "UPDATE LIST SET SEX = 'girl' WHERE SEX = 'boy'"
 # 删除数据
@@ -21,7 +21,7 @@ deleteListD = "DELETE FROM sanjidetail"
 
 # 执行
 # cursor.execute(deleteListL)
-cursor.execute(Student)
+cursor.execute(searchData)
 # 执行结果
 # results = cursor.fetchall()
 # for key in results:

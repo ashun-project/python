@@ -13,51 +13,6 @@ computNum = 1
 path = "E:\\python\\nothing\\"
 replacePath = "E:\\python\\test\\"
 
-#* 
-    # Python用法
-        #print (driver.page_source)                   // 打印demo
-        #print (ele.get_attribute('innerHTML'))       // 打印某个元素
-        #time.sleep(num)                              // 停止等待多少时间，需要引入 import time
-        #if 'au' in a:                                // 同等于js的indexOf
-        # import pdb # pdb.set_trace()                // 同等于debugger n往下执行
-    #selenium用法    
-        # driver.close()                                  // 关闭浏览器
-        # driver.implicitly_wait(6)                       // 隐形等待6秒 (智能等待以后换成这种  需要测试)
-        # driver.page_source                              // 打印demo
-        # driver.find_element_by_partial_link_text('132') // 获取a标签的text含有123的属性
-
-        # 操作没有出现在窗口的元素
-            # from selenium.webdriver.common.action_chains import ActionChains
-            # action = ActionChains(driver)
-            # action.move_to_element(a[i]).click().perform()
-
-        # Chrome驱动    
-            # Browser ='C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe' // 驱动路径
-            # os.environ["webdriver.chrome.driver"] = Browser                              // 设置环境变量
-            # 文件下载配置
-                # options = webdriver.ChromeOptions()  
-                # prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': 'E:\\python\\nothing\\'}
-                # options.add_experimental_option('prefs', prefs) 
-            # driver = webdriver.Chrome(
-                # Browser,                     // 驱动配置
-                # chrome_options=options      // 下载配置  
-            #)
-        # fireFox
-            # 文件下载
-                # profile = webdriver.FirefoxProfile()
-                # profile.set_preference('browser.download.dir', 'E:\\python\\nothing\\')
-                # profile.set_preference('browser.download.folderList', 2)
-                # profile.set_preference('browser.download.manager.showWhenStarting', False)
-                # profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-
-            # driver = webdriver.Firefox(
-                # executable_path = 'E:\\python\\geckodriver.exe',   // 驱动路径
-                # firefox_profile=profile                            // 下载配置               
-            #)    
-    # sql
-        # conn.escape_string()  // sql对HTML转义
-        # cursor.close()        // 关闭游标    
-#*
 
 #做一个等待的通用方法
 
@@ -144,24 +99,28 @@ def getListDetail(arr):
                 else:
                     addList = "INSERT INTO sanjilist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
                     addDetail = "INSERT INTO sanjidetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
+                    # searchData = "SELECT * FROM sanjilist WHERE url = "+"\'"+arr[i]["url"]+"\'"
                     searchData = "SELECT * FROM sanjilist WHERE url = '%s'" % (arr[i]["url"])
-                    try:
-                        cursor.execute(searchData)
-                        results = cursor.fetchall()
-                        if len(results) <= 0:
-                            cursor.execute(addList)
-                            cursor.execute(addDetail)
-                    except Exception as e:
-                        print('执行数据操作出错', e)
+                    cursor.execute(searchData)
+                    results = cursor.fetchall()
+                    if len(results) <= 0:
+                        print('not-data', len(results))
                     else:
+                        print('有数据', len(results))
+                    sleep(5)
+                    # try:
+                        # cursor.execute(addList)
+                        # cursor.execute(addDetail)
+                    # except Exception as e:
+                    #     print('执行数据操作出错', e)
+                    # else:
                         # cursor.close()
-                        if len(results) <= 0:
-                            conn.commit()
-                            getOs(cont, currentTime)
+                        # conn.commit()
+                        # getOs(cont, currentTime)
         else:
             print ('url not true')
-    # getPage()
-    #记得关闭selenium  1天后再次调用init
+    getPage()
+    #记得关闭selenium
 def geUrltList ():
     try:
         result = driver.find_elements_by_css_selector(".no-b-border > a[class='s xst']")
@@ -219,7 +178,7 @@ def init():
     try:
         driver.get('http://www.s8bar.com/') #+obj['url']
         driver.find_element_by_id('goin').click()
-        driver.find_element_by_id('ls_username').send_keys('sexlookashun') #sexlookashun,ashun6
+        driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun
         driver.find_element_by_id('ls_password').send_keys('ashun666')
         driver.find_element_by_class_name('mem_login').click()
         driver.implicitly_wait(6)

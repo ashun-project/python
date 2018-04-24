@@ -30,7 +30,8 @@ driver.get('http://www.baidu.com/') #+obj['url']
 driver.implicitly_wait(6)
 # alllist = os.listdir(replacePath)
 # print(len(alllist), 123)
-spl = 'sdsasdf.aa.aa'
+spl = {}
+
 try:
     aa,bb = spl.split(".")
 except Exception as e:
@@ -40,4 +41,9 @@ url = driver.current_url
 
 if 'http://www.baidu.com' not in url:
     print(112, url)
-# driver.close()
+print(len(spl))
+
+
+
+driver.close()
+print(798)
