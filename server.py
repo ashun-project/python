@@ -90,10 +90,13 @@ def checkOs(currentTime):
                 os.remove(oldname)
                 computNum = 0
     else:
-        if (computNum < 180):
-            sleep(1)
-            computNum += 1
-            checkOs(currentTime) 
+        if 'http://www.s8bar.com' in driver.current_url:
+            if (computNum < 180):
+                sleep(1)
+                computNum += 1
+                checkOs(currentTime)
+            else:
+                computNum = 0   
         else:
             computNum = 0    
 
@@ -119,9 +122,6 @@ def getOs(cont,currentTime):
         print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
-        if 'http://www.s8bar.com' not in driver.current_url:
-            driver.execute_script("document.location.href=arguments[0]", url)
-            sleep(3)
         checkOs(currentTime)
      
 def getListDetail(arr):
