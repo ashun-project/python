@@ -144,7 +144,7 @@ def getListDetail(arr):
                 else:
                     addList = "INSERT INTO sanjilist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
                     addDetail = "INSERT INTO sanjidetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
-                    searchData = "SELECT * FROM sanjilist WHERE url = '%s'" % (arr[i]["url"])
+                    searchData = "SELECT * FROM sanjilist WHERE title = '%s'" % (arr[i]['txt'])
                     try:
                         cursor.execute(searchData)
                         results = cursor.fetchall()
