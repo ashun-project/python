@@ -6,16 +6,19 @@ import time
 import re
 import pymysql
 
-conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangboshun', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
-cursor = conn.cursor()
-computNum = 1
-
 path = "D:\\project\\python\\nothing\\"
 replacePath = "D:\\project\\python\\test\\"
-
+computNum = 1
 driver = ''
+conn = ''
+cursor = ''
+
 def getDriver():
     global driver
+    global conn
+    global cursor
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangboshun', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
+    cursor = conn.cursor()
     profile = webdriver.FirefoxProfile()
     profile.set_preference('browser.download.dir', 'D:\\project\\python\\nothing\\')
     profile.set_preference('browser.download.folderList', 2)
@@ -110,14 +113,15 @@ def getListDetail(arr):
                     except Exception as e:
                         print('执行数据操作出错', e)
                     else:
-                        # cursor.close()
                         if len(results) <= 0:
                             conn.commit()
                             getOs(cont, currentTime)
         else:
             print ('url not true')
     driver.quit()
-    sleep(86400)  #休息一天
+    conn.close()
+    cursor.close()
+    sleep(86400)  #休息一天86400
     init()
 def geUrltList ():
     try:
