@@ -6,23 +6,28 @@ import time
 import re
 import pymysql
 
-conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangboshun', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
-cursor = conn.cursor()
-num = 1
-computNum = 1
 path = "E:\\python\\nothing\\"
-replacePath = "E:\\python\\test\\"
+replacePath = "E:\\python\\"
+computNum = 1
+driver = ''
+conn = ''
+cursor = ''
+tableName = ''
 
+def getDriver():
+    global driver
+    global conn
+    global cursor
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangboshun', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
+    cursor = conn.cursor()
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference('browser.download.dir', path)
+    profile.set_preference('browser.download.folderList', 2)
+    profile.set_preference('browser.download.manager.showWhenStarting', False)
+    profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
+    driver = webdriver.Firefox(executable_path = 'E:\\python\\geckodriver.exe', firefox_profile=profile)
 
 #做一个等待的通用方法
-
-profile = webdriver.FirefoxProfile()
-profile.set_preference('browser.download.dir', 'E:\\python\\nothing\\')
-profile.set_preference('browser.download.folderList', 2)
-profile.set_preference('browser.download.manager.showWhenStarting', False)
-profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-driver = webdriver.Firefox(executable_path = 'E:\\python\\geckodriver.exe', firefox_profile=profile)
-
 def sleep(sec=9):
     time.sleep(sec)
 
@@ -41,14 +46,18 @@ def checkOs(currentTime):
             else:
                 os.rename(path+i, path + name + '.' + bb)
                 oldname =  path + name + '.' + bb
-                shutil.copyfile(oldname,replacePath + name + '.' + bb)
+                shutil.copyfile(oldname,replacePath+tableName+'\\' + name + '.' + bb)
+                # shutil.copyfile(oldname,replacePath2 + name + '.' + bb)
                 os.remove(oldname)
                 computNum = 0
     else:
-        if (computNum < 180):
-            sleep(1)
-            computNum += 1
-            checkOs(currentTime) 
+        if 'http://www.s8bar.com' in driver.current_url:
+            if (computNum < 180):
+                sleep(1)
+                computNum += 1
+                checkOs(currentTime)
+            else:
+                computNum = 0   
         else:
             computNum = 0    
 
@@ -63,20 +72,17 @@ def getOs(cont,currentTime):
         print('获取id出错---', e)
     else:
         url = ev.get_attribute('href')
-        if os.path.exists('E:\\python\\nothing'):
+        if os.path.exists(path):
             try:
-                shutil.rmtree('E:\\python\\nothing')  
-                os.mkdir('E:\\python\\nothing')
+                shutil.rmtree(path)  
+                os.mkdir(path)
             except Exception as e:
                 print('操作文件失败---', e)   
         else:
-            os.mkdir('E:\\python\\nothing')
+            os.mkdir(path)
         print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
-        if 'http://www.s8bar.com' not in driver.current_url:
-            driver.execute_script("document.location.href=arguments[0]", url)
-            sleep(3)
         checkOs(currentTime)
      
 def getListDetail(arr):
@@ -97,30 +103,23 @@ def getListDetail(arr):
                 except Exception as e:
                     print('获取详情内容时出错', e)
                 else:
-                    addList = "INSERT INTO sanjilist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
-                    addDetail = "INSERT INTO sanjidetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
-                    # searchData = "SELECT * FROM sanjilist WHERE url = "+"\'"+arr[i]["url"]+"\'"
-                    searchData = "SELECT * FROM sanjilist WHERE url = '%s'" % (arr[i]["url"])
-                    cursor.execute(searchData)
-                    results = cursor.fetchall()
-                    if len(results) <= 0:
-                        print('not-data', len(results))
+                    addList = "INSERT INTO "+tableName+"list(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
+                    addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
+                    searchData = "SELECT * FROM "+tableName+"list WHERE title = '%s'" % (arr[i]['txt'])
+                    try:
+                        cursor.execute(searchData)
+                        results = cursor.fetchall()
+                        if len(results) <= 0:
+                            cursor.execute(addList)
+                            cursor.execute(addDetail)
+                    except Exception as e:
+                        print('执行数据操作出错', e)
                     else:
-                        print('有数据', len(results))
-                    sleep(5)
-                    # try:
-                        # cursor.execute(addList)
-                        # cursor.execute(addDetail)
-                    # except Exception as e:
-                    #     print('执行数据操作出错', e)
-                    # else:
-                        # cursor.close()
-                        # conn.commit()
-                        # getOs(cont, currentTime)
+                        if len(results) <= 0:
+                            conn.commit()
+                            getOs(cont, currentTime)
         else:
             print ('url not true')
-    getPage()
-    #记得关闭selenium
 def geUrltList ():
     try:
         result = driver.find_elements_by_css_selector(".no-b-border > a[class='s xst']")
@@ -160,33 +159,40 @@ def geUrltList ():
             geUrltList()
         else:
             getListDetail(arr)
-def getPage():
-    global num
-    sleep(3)
-    url = 'http://www.s8bar.com/forum-234-'+ str(num) +'.html'
+def getPage(url):
+    sleep(5)
     try:
         driver.execute_script("document.location.href=arguments[0]", url)
     except Exception as e:
         print('getPage------出错', e)
-        getPage()
+        getPage(url)
     else:
-        num = num + 1 
         driver.implicitly_wait(6)
         sleep(2)
         geUrltList()
 def init():
     try:
+        getDriver()
         driver.get('http://www.s8bar.com/') #+obj['url']
         driver.find_element_by_id('goin').click()
-        driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun
+        driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
         driver.find_element_by_id('ls_password').send_keys('ashun666')
         driver.find_element_by_class_name('mem_login').click()
         driver.implicitly_wait(6)
     except Exception as e:
         print('init-------出错', e)
         init()
-    else:    
-        getPage()    
+    else:
+        arrUrl = [{'url': 'http://www.s8bar.com/forum-234-1.html', 'name': 'sanji'}, {'url': 'http://www.s8bar.com/forum-723-1.html', 'name': 'wuma'}]
+        global tableName
+        for i in range(len(arrUrl)):
+            tableName = arrUrl[i]['name']
+            getPage(arrUrl[i]['url'])
+        driver.quit()
+        conn.close()
+        cursor.close()
+        sleep(86400)  #休息一天86400
+        init()     
 if __name__ == "__main__": 
     init()
 # getListDetail('http://www.s8bar.com/thread-9227434-1-1.html')

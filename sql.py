@@ -4,7 +4,8 @@ conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangbos
 
 cursor = conn.cursor()  
 # 创建表
-Student = "create table sanjidetail(createTime int(50), url varchar(100), content longtext)"
+crList = "create table wumalist(createTime int(50), url varchar(100), title varchar(100), img longtext)"
+crDetail = "create table wumadetail(createTime int(50), url varchar(100), content longtext)"
 # 删除表
 deList = "DROP TABLE IF EXISTS sanjilist"
 deDetail = "DROP TABLE IF EXISTS sanjidetail"
@@ -20,8 +21,8 @@ deleteListL = "DELETE FROM sanjilist"
 deleteListD = "DELETE FROM sanjidetail"
 
 # 执行
-# cursor.execute(deleteListL)
-cursor.execute(searchData)
+cursor.execute(crList)
+cursor.execute(crDetail)
 # 执行结果
 # results = cursor.fetchall()
 # for key in results:
