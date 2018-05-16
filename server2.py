@@ -6,8 +6,10 @@ import time
 import re
 import pymysql
 
-path = "E:\\python\\nothing\\"
-replacePath = "E:\\python\\"
+path = "E:\\project\\python\\nothing\\"
+path2 = "E:\\project\\python\\nothing"
+replacePath = "E:\\project\\python\\"
+exePath = "E:\\project\\python\\geckodriver.exe"
 computNum = 1
 driver = ''
 conn = ''
@@ -25,7 +27,7 @@ def getDriver():
     profile.set_preference('browser.download.folderList', 2)
     profile.set_preference('browser.download.manager.showWhenStarting', False)
     profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-    driver = webdriver.Firefox(executable_path = 'E:\\python\\geckodriver.exe', firefox_profile=profile)
+    driver = webdriver.Firefox(executable_path = exePath, firefox_profile=profile)
 
 #做一个等待的通用方法
 def sleep(sec=9):
@@ -72,14 +74,14 @@ def getOs(cont,currentTime):
         print('获取id出错---', e)
     else:
         url = ev.get_attribute('href')
-        if os.path.exists(path):
+        if os.path.exists(path2):
             try:
-                shutil.rmtree(path)  
-                os.mkdir(path)
+                shutil.rmtree(path2)  
+                os.mkdir(path2)
             except Exception as e:
                 print('操作文件失败---', e)   
         else:
-            os.mkdir(path)
+            os.mkdir(path2)
         print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)

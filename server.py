@@ -10,8 +10,12 @@ conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangbos
 cursor = conn.cursor()
 num = 1
 computNum = 1
-path = "E:\\python\\nothing\\"
-replacePath = "E:\\python\\test\\"
+driver = ''
+
+path = "E:\\project\\python\\nothing\\"
+path2 = "E:\\project\\python\\nothing"
+replacePath = "E:\\project\\python\\wuma\\"
+exePath = "E:\\project\\python\\geckodriver.exe"
 
 #* 
     # Python用法
@@ -60,15 +64,14 @@ replacePath = "E:\\python\\test\\"
 #*
 
 #做一个等待的通用方法
-driver = ''
 def getDriver():
     global driver
     profile = webdriver.FirefoxProfile()
-    profile.set_preference('browser.download.dir', 'E:\\python\\nothing\\')
+    profile.set_preference('browser.download.dir', path)
     profile.set_preference('browser.download.folderList', 2)
     profile.set_preference('browser.download.manager.showWhenStarting', False)
     profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-    driver = webdriver.Firefox(executable_path = 'E:\\python\\geckodriver.exe', firefox_profile=profile)
+    driver = webdriver.Firefox(executable_path = exePath, firefox_profile=profile)
 
 def sleep(sec=9):
     time.sleep(sec)
@@ -113,14 +116,14 @@ def getOs(cont,currentTime):
         print('获取id出错---', e)
     else:
         url = ev.get_attribute('href')
-        if os.path.exists('E:\\python\\nothing'):
+        if os.path.exists(path2):
             try:
-                shutil.rmtree('E:\\python\\nothing')  
-                os.mkdir('E:\\python\\nothing')
+                shutil.rmtree(path2)  
+                os.mkdir(path2)
             except Exception as e:
                 print('操作文件失败---', e)   
         else:
-            os.mkdir('E:\\python\\nothing')
+            os.mkdir(path2)
         print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
@@ -144,9 +147,9 @@ def getListDetail(arr):
                 except Exception as e:
                     print('获取详情内容时出错', e)
                 else:
-                    addList = "INSERT INTO sanjilist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
-                    addDetail = "INSERT INTO sanjidetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
-                    searchData = "SELECT * FROM sanjilist WHERE title = '%s'" % (arr[i]['txt'])
+                    addList = "INSERT INTO wumalist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
+                    addDetail = "INSERT INTO wumadetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
+                    searchData = "SELECT * FROM wumalist WHERE title = '%s'" % (arr[i]['txt'])
                     try:
                         cursor.execute(searchData)
                         results = cursor.fetchall()
@@ -162,7 +165,7 @@ def getListDetail(arr):
                             getOs(cont, currentTime)
         else:
             print ('url not true')
-    # getPage()
+    getPage()
     #记得关闭selenium  1天后再次调用init
 def geUrltList ():
     try:
@@ -206,7 +209,7 @@ def geUrltList ():
 def getPage():
     global num
     sleep(3)
-    url = 'http://www.s8bar.com/forum-234-'+ str(num) +'.html'
+    url = 'http://www.s8bar.com/forum-723-'+ str(num) +'.html'
     try:
         driver.execute_script("document.location.href=arguments[0]", url)
     except Exception as e:
