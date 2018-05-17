@@ -26,7 +26,7 @@ def getDriver():
     profile.set_preference('browser.download.dir', path)
     profile.set_preference('browser.download.folderList', 2)
     profile.set_preference('browser.download.manager.showWhenStarting', False)
-    profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
+    profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream,application/zip')
     driver = webdriver.Firefox(executable_path = exePath, firefox_profile=profile)
 
 #做一个等待的通用方法
@@ -185,7 +185,7 @@ def init():
         print('init-------出错', e)
         init()
     else:
-        arrUrl = [{'url': 'http://www.s8bar.com/forum-234-1.html', 'name': 'sanji'}, {'url': 'http://www.s8bar.com/forum-723-1.html', 'name': 'wuma'}]
+        arrUrl = [{'url': 'http://www.s8bar.com/forum-234-1.html', 'name': 'sanji'}, {'url': 'http://www.s8bar.com/forum-723-1.html', 'name': 'wuma'}, {'url': 'http://www.s8bar.com/forum-525-1.html', 'name': 'oumei'}, {'url': 'http://www.s8bar.com/forum-136-1.html', 'name': 'dongman'}]
         global tableName
         for i in range(len(arrUrl)):
             tableName = arrUrl[i]['name']

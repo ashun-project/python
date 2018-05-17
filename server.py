@@ -8,13 +8,13 @@ import pymysql
 
 conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangboshun', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
 cursor = conn.cursor()
-num = 1
+num = 8
 computNum = 1
 driver = ''
 
 path = "E:\\project\\python\\nothing\\"
 path2 = "E:\\project\\python\\nothing"
-replacePath = "E:\\project\\python\\wuma\\"
+replacePath = "E:\\project\\python\\dongman\\"
 exePath = "E:\\project\\python\\geckodriver.exe"
 
 #* 
@@ -70,7 +70,7 @@ def getDriver():
     profile.set_preference('browser.download.dir', path)
     profile.set_preference('browser.download.folderList', 2)
     profile.set_preference('browser.download.manager.showWhenStarting', False)
-    profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
+    profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream,application/zip')
     driver = webdriver.Firefox(executable_path = exePath, firefox_profile=profile)
 
 def sleep(sec=9):
@@ -147,9 +147,9 @@ def getListDetail(arr):
                 except Exception as e:
                     print('获取详情内容时出错', e)
                 else:
-                    addList = "INSERT INTO wumalist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
-                    addDetail = "INSERT INTO wumadetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
-                    searchData = "SELECT * FROM wumalist WHERE title = '%s'" % (arr[i]['txt'])
+                    addList = "INSERT INTO dongmanlist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
+                    addDetail = "INSERT INTO dongmandetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
+                    searchData = "SELECT * FROM dongmanlist WHERE title = '%s'" % (arr[i]['txt'])
                     try:
                         cursor.execute(searchData)
                         results = cursor.fetchall()
@@ -209,14 +209,14 @@ def geUrltList ():
 def getPage():
     global num
     sleep(3)
-    url = 'http://www.s8bar.com/forum-723-'+ str(num) +'.html'
+    url = 'http://www.s8bar.com/forum-136-'+ str(num) +'.html'
     try:
         driver.execute_script("document.location.href=arguments[0]", url)
     except Exception as e:
         print('getPage------出错', e)
         getPage()
     else:
-        num = num + 1 
+        num = num - 1 
         driver.implicitly_wait(6)
         sleep(2)
         geUrltList()
@@ -225,7 +225,7 @@ def init():
         getDriver()
         driver.get('http://www.s8bar.com/') #+obj['url']
         driver.find_element_by_id('goin').click()
-        driver.find_element_by_id('ls_username').send_keys('sexlookashun') #sexlookashun,ashun6
+        driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
         driver.find_element_by_id('ls_password').send_keys('ashun666')
         driver.find_element_by_class_name('mem_login').click()
         driver.implicitly_wait(6)
