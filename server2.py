@@ -82,7 +82,7 @@ def getOs(cont,currentTime):
                 print('操作文件失败---', e)   
         else:
             os.mkdir(path2)
-        print('下载----',url)    
+        print(tableName,'下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
         checkOs(currentTime)
@@ -91,7 +91,7 @@ def getListDetail(arr):
     for i in range(len(arr)):
         if arr[i]['url']:
             try:
-                print('页面----',arr[i]['url'])   
+                print(tableName,'页面----',arr[i]['url'])   
                 driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
                 driver.implicitly_wait(6)
                 sleep(2)
