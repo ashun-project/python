@@ -102,7 +102,7 @@ def getListDetail(arr):
             else:
                 try:
                     if dataType == 'video':
-                        video = driver.find_element_by_class_name("playerWrap").find_element_by_tag_name('video').get_attribute('src')
+                        video = driver.find_element_by_class_name("playerWrap").get_attribute('data-normal')
                         driver.execute_script("var self = document.getElementsByClassName('playerWrap')[0];self.parentNode.removeChild(self);")
                     cont = driver.find_element_by_xpath('//*[@id="postlist"]/div').find_element_by_class_name('pcb')
                     contHtml = cont.get_attribute('innerHTML')
