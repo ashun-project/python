@@ -9,12 +9,14 @@ import pymysql
 path = "E:\\project\\python\\nothing\\"
 path2 = "E:\\project\\python\\nothing"
 replacePath = "E:\\project\\python\\"
+replacePath2 = "E:\\project\\ashun\\server\\"
 exePath = "E:\\project\\python\\geckodriver.exe"
 computNum = 1
 driver = ''
 conn = ''
 cursor = ''
 tableName = ''
+dataType = ''
 
 def getDriver():
     global driver
@@ -49,11 +51,11 @@ def checkOs(currentTime):
                 os.rename(path+i, path + name + '.' + bb)
                 oldname =  path + name + '.' + bb
                 shutil.copyfile(oldname,replacePath+tableName+'\\' + name + '.' + bb)
-                # shutil.copyfile(oldname,replacePath2 + name + '.' + bb)
+                shutil.copyfile(oldname,replacePath2+tableName+'\\' + name + '.' + bb)
                 os.remove(oldname)
                 computNum = 0
     else:
-        if 'http://www.s8bar.com' in driver.current_url:
+        if 'http://s8bar.com' in driver.current_url:
             if (computNum < 180):
                 sleep(1)
                 computNum += 1
@@ -82,7 +84,7 @@ def getOs(cont,currentTime):
                 print('操作文件失败---', e)   
         else:
             os.mkdir(path2)
-        print(tableName,'下载----',url)    
+        print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
         checkOs(currentTime)
@@ -94,19 +96,26 @@ def getListDetail(arr):
                 print(tableName,'页面----',arr[i]['url'])   
                 driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
                 driver.implicitly_wait(6)
-                sleep(2)
+                sleep(3)
             except Exception as e:
                 print('获取详情是出错-------', e)
             else:
                 try:
+                    if dataType == 'video':
+                        video = driver.find_element_by_class_name("playerWrap").find_element_by_tag_name('video').get_attribute('src')
+                        driver.execute_script("var self = document.getElementsByClassName('playerWrap')[0];self.parentNode.removeChild(self);")
                     cont = driver.find_element_by_xpath('//*[@id="postlist"]/div').find_element_by_class_name('pcb')
                     contHtml = cont.get_attribute('innerHTML')
                     currentTime = int(time.time())
                 except Exception as e:
                     print('获取详情内容时出错', e)
                 else:
-                    addList = "INSERT INTO "+tableName+"list(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
-                    addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
+                    if dataType == 'video':
+                        addList = "INSERT INTO "+tableName+"list(createTime,url,title,img,type)values('%d','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], 'all')
+                        addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content, video)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video)
+                    else:    
+                        addList = "INSERT INTO "+tableName+"list(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
+                        addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
                     searchData = "SELECT * FROM "+tableName+"list WHERE title = '%s'" % (arr[i]['txt'])
                     try:
                         cursor.execute(searchData)
@@ -119,9 +128,10 @@ def getListDetail(arr):
                     else:
                         if len(results) <= 0:
                             conn.commit()
-                            getOs(cont, currentTime)
+                            if dataType == 'download':
+                                getOs(cont, currentTime)
         else:
-            print ('url not true')
+            print ('url not true')                
 def geUrltList ():
     try:
         result = driver.find_elements_by_css_selector(".no-b-border > a[class='s xst']")
@@ -175,7 +185,7 @@ def getPage(url):
 def init():
     try:
         getDriver()
-        driver.get('http://www.s8bar.com/') #+obj['url']
+        driver.get('http://s8bar.com/') #+obj['url']
         driver.find_element_by_id('goin').click()
         driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
         driver.find_element_by_id('ls_password').send_keys('ashun666')
@@ -185,11 +195,20 @@ def init():
         print('init-------出错', e)
         init()
     else:
-        arrUrl = [{'url': 'http://www.s8bar.com/forum-234-1.html', 'name': 'sanji'}, {'url': 'http://www.s8bar.com/forum-723-1.html', 'name': 'wuma'}, {'url': 'http://www.s8bar.com/forum-525-1.html', 'name': 'oumei'}, {'url': 'http://www.s8bar.com/forum-136-1.html', 'name': 'dongman'}]
+        arrUrl = [
+            {'url': 'http://s8bar.com/forum-234-1.html', 'name': 'sanji', 'type': 'download'},
+            {'url': 'http://s8bar.com/forum-723-1.html', 'name': 'wuma', 'type': 'download'},
+            {'url': 'http://s8bar.com/forum-525-1.html', 'name': 'oumei', 'type': 'download'},
+            {'url': 'http://s8bar.com/forum-136-1.html', 'name': 'dongman', 'type': 'download'},
+            {'url': 'http://s8bar.com/forum-307-1.html', 'name': 'wumavideo', 'type': 'video'}
+        ]
         global tableName
+        global dataType
         for i in range(len(arrUrl)):
             tableName = arrUrl[i]['name']
+            dataType = arrUrl[i]['type']
             getPage(arrUrl[i]['url'])
+            sleep(3)
         driver.quit()
         conn.close()
         cursor.close()
@@ -197,5 +216,5 @@ def init():
         init()     
 if __name__ == "__main__": 
     init()
-# getListDetail('http://www.s8bar.com/thread-9227434-1-1.html')
+# getListDetail('http://s8bar.com/thread-9227434-1-1.html')
 # driver.close()

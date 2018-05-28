@@ -8,7 +8,7 @@ import pymysql
 
 conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangboshun', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
 cursor = conn.cursor()
-num = 1
+num = 9
 computNum = 1
 driver = ''
 exePath = "E:\\project\\python\\geckodriver.exe"
@@ -60,34 +60,34 @@ def getListDetail(arr):
                 print('页面----',arr[i]['url'])   
                 driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
                 driver.implicitly_wait(6)
-                sleep(2)
+                sleep(3)
             except Exception as e:
                 print('获取详情是出错-------', e)
             else:
                 try:
+                    video = driver.find_element_by_class_name("playerWrap").find_element_by_tag_name('video').get_attribute('src')
+                    driver.execute_script("var self = document.getElementsByClassName('playerWrap')[0];self.parentNode.removeChild(self);")
                     cont = driver.find_element_by_xpath('//*[@id="postlist"]/div').find_element_by_class_name('pcb')
                     contHtml = cont.get_attribute('innerHTML')
                     currentTime = int(time.time())
                 except Exception as e:
                     print('获取详情内容时出错', e)
                 else:
-                    print (contHtml)
-                    sleep(210000)
-                    # addList = "INSERT INTO dongmanlist(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
-                    # addDetail = "INSERT INTO dongmandetail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
-                    # searchData = "SELECT * FROM dongmanlist WHERE title = '%s'" % (arr[i]['txt'])
-                    # try:
-                    #     cursor.execute(searchData)
-                    #     results = cursor.fetchall()
-                    #     if len(results) <= 0:
-                    #         cursor.execute(addList)
-                    #         cursor.execute(addDetail)
-                    # except Exception as e:
-                    #     print('执行数据操作出错', e)
-                    # else:
-                    #     if len(results) <= 0:
-                    #         conn.commit()
-                            # getOs(cont, currentTime)
+                    # print ('video===', video , '===',contHtml)
+                    addList = "INSERT INTO sanjivideolist(createTime,url,title,img,type)values('%d','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], 'all')
+                    addDetail = "INSERT INTO sanjivideodetail(createTime, url, content, video)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video)
+                    searchData = "SELECT * FROM sanjivideolist WHERE title = '%s'" % (arr[i]['txt'])
+                    try:
+                        cursor.execute(searchData)
+                        results = cursor.fetchall()
+                        if len(results) <= 0:
+                            cursor.execute(addList)
+                            cursor.execute(addDetail)
+                    except Exception as e:
+                        print('执行数据操作出错', e)
+                    else:
+                        if len(results) <= 0:
+                            conn.commit()
         else:
             print ('url not true')
     getPage()
@@ -95,6 +95,8 @@ def getListDetail(arr):
 def geUrltList ():
     try:
         result = driver.find_elements_by_css_selector(".no-b-border > a[class='s xst']")
+        # 添加的    
+        news = driver.find_elements_by_css_selector(".no-b-border.new") #过滤公告通知
         targetA = driver.find_elements_by_css_selector(".img_preview_hidden > .cl > a")
     except Exception as e:
         print('geUrltList-----获取元素出错---停止一天查找原因', e)
@@ -104,28 +106,33 @@ def geUrltList ():
         arr = []
         try:
             for i in range(len(result)):
-                imgStr = ''
-                img = ''
-                url = result[i].get_attribute('href')
-                txt = result[i].text
-                if result[i].get_attribute('href') == targetA[i].get_attribute('href'):
-                    imgList = targetA[i].find_elements_by_css_selector('.thread-img')
-                    for k in range(len(imgList)):
-                        # print (imgList[k].get_attribute('src'))
-                        if k > 0:
-                            imgStr = ','
-                        img += imgStr+imgList[k].get_attribute('src')
+                # 添加的
+                newTxt = news[i].find_element_by_xpath('em/a').get_attribute('innerHTML')
+                if '公告通知' in newTxt:
+                    print('无用的数据')
                 else:
-                    for j in range(len(targetA)):
-                        if result[i].get_attribute('href') == targetA[j].get_attribute('href'):
-                            imgList = targetA[j].find_elements_by_css_selector('.thread-img')
-                            for k in range(len(imgList)):
-                                # print (imgList[k].get_attribute('src'))
-                                if k > 0:
-                                    imgStr = ','
-                                img += imgStr+imgList[k].get_attribute('src')
-                            break
-                arr.append({'url': url, 'txt': txt, 'img': img})
+                    imgStr = ''
+                    img = ''
+                    url = result[i].get_attribute('href')
+                    txt = result[i].text
+                    if result[i].get_attribute('href') == targetA[i].get_attribute('href'):
+                        imgList = targetA[i].find_elements_by_css_selector('.thread-img')
+                        for k in range(len(imgList)):
+                            # print (imgList[k].get_attribute('src'))
+                            if k > 0:
+                                imgStr = ','
+                            img += imgStr+imgList[k].get_attribute('src')
+                    else:
+                        for j in range(len(targetA)):
+                            if result[i].get_attribute('href') == targetA[j].get_attribute('href'):
+                                imgList = targetA[j].find_elements_by_css_selector('.thread-img')
+                                for k in range(len(imgList)):
+                                    # print (imgList[k].get_attribute('src'))
+                                    if k > 0:
+                                        imgStr = ','
+                                    img += imgStr+imgList[k].get_attribute('src')
+                                break
+                    arr.append({'url': url, 'txt': txt, 'img': img})
         except Exception as e:
             print('获取列表出错', e)
             geUrltList()
@@ -134,14 +141,15 @@ def geUrltList ():
 def getPage():
     global num
     sleep(3)
-    url = 'http://s8bar.com/forum-142-'+ str(num) +'.html'
+    #http://s8bar.com/forum-289-1.html  // http://s8bar.com/forum-142-
+    url = 'http://s8bar.com/forum-307-'+ str(num) +'.html'
     try:
         driver.execute_script("document.location.href=arguments[0]", url)
     except Exception as e:
         print('getPage------出错', e)
         getPage()
     else:
-        num = num + 1 
+        num = num - 1 
         driver.implicitly_wait(6)
         sleep(2)
         geUrltList()
