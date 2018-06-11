@@ -4,8 +4,8 @@ conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangbos
 
 cursor = conn.cursor()  
 # 创建表
-crList = "create table sanjivideolist(createTime int(50), url varchar(100), title varchar(100), img longtext, type varchar(50))"
-crDetail = "create table sanjivideodetail(createTime int(50), url varchar(100), content longtext, video varchar(100))"
+crList = "create table zipaivideolist(createTime int(50), url varchar(100), title varchar(100), img longtext, type varchar(50))"
+crDetail = "create table zipaivideodetail(createTime int(50), url varchar(100), content longtext, video varchar(100))"
 # 删除表
 deList = "DROP TABLE IF EXISTS sanjivideolist"
 deDetail = "DROP TABLE IF EXISTS sanjivideodetail"

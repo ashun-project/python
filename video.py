@@ -27,31 +27,6 @@ def getDriver():
 
 def sleep(sec=9):
     time.sleep(sec)
-
-
-# def getOs(cont,currentTime):
-#     succ = 'fs'
-#     js = "var divEles=arguments[0].children;var txt='';eachList(divEles);function eachList(data){for(var i=0;i<data.length;i++){var found=false;if(data[i].firstChild){txt=data[i].firstChild.nodeValue||'';}else{txt=data[i].innerText||'';};if(txt.indexOf('下载次数')>-1){var ev=data[i].parentNode;var child=ev.getElementsByTagName('a');var hf='';var cla='';for(var j=0;j<child.length;j++){hf=child[j].getAttribute('href');cla=child[j].getAttribute('class')||'';if(hf.indexOf('forum.php?mod')>-1&&cla.indexOf('xw1')<0){child[j].setAttribute('id','my-set-id');found=true;break;};};};if(!found){var childList=data[i].children;eachList(childList);};};};"
-#     driver.execute_script(js,cont)
-#     sleep(1)
-#     try:
-#         ev = driver.find_element_by_id('my-set-id')
-#     except Exception as e:
-#         print('获取id出错---', e)
-#     else:
-#         url = ev.get_attribute('href')
-#         if os.path.exists(path2):
-#             try:
-#                 shutil.rmtree(path2)  
-#                 os.mkdir(path2)
-#             except Exception as e:
-#                 print('操作文件失败---', e)   
-#         else:
-#             os.mkdir(path2)
-#         print('下载----',url)    
-#         driver.execute_script("document.location.href=arguments[0]", url)
-#         sleep(3)
-#         checkOs(currentTime)
      
 def getListDetail(arr):
     for i in range(len(arr)):
@@ -74,9 +49,9 @@ def getListDetail(arr):
                     print('获取详情内容时出错', e)
                 else:
                     # print ('video===', video , '===',contHtml)
-                    addList = "INSERT INTO sanjivideolist(createTime,url,title,img,type)values('%d','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], 'all')
-                    addDetail = "INSERT INTO sanjivideodetail(createTime, url, content, video)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video)
-                    searchData = "SELECT * FROM sanjivideolist WHERE title = '%s'" % (arr[i]['txt'])
+                    addList = "INSERT INTO zipaivideolist(createTime,url,title,img,type)values('%d','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], 'all')
+                    addDetail = "INSERT INTO zipaivideodetail(createTime, url, content, video)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video)
+                    searchData = "SELECT * FROM zipaivideolist WHERE title = '%s'" % (arr[i]['txt'])
                     try:
                         cursor.execute(searchData)
                         results = cursor.fetchall()
@@ -141,8 +116,9 @@ def geUrltList ():
 def getPage():
     global num
     sleep(3)
-    #http://s8bar.com/forum-289-1.html  // http://s8bar.com/forum-142-
-    url = 'http://s8bar.com/forum-307-'+ str(num) +'.html'
+    #http://s8bar.com/forum-289-1.html  // http://s8bar.com/forum-142-  // http://s8bar.com/forum-180-1.html
+    #http://s8bar.com/forum-289-1.html动漫   http://s8bar.com/forum-222-1.html有吗  http://s8bar.com/forum-27-1.html欧美  http://s8bar.com/forum-181-1.html网友自拍
+    url = 'http://s8bar.com/forum-181-'+ str(num) +'.html'
     try:
         driver.execute_script("document.location.href=arguments[0]", url)
     except Exception as e:
@@ -159,7 +135,7 @@ def init():
         driver.get('http://s8bar.com/') #+obj['url']
         driver.implicitly_wait(6)
         driver.find_element_by_id('goin').click()
-        driver.find_element_by_id('ls_username').send_keys('ashun5') #sexlookashun,ashun6
+        driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
         driver.find_element_by_id('ls_password').send_keys('ashun666')
         driver.find_element_by_class_name('mem_login').click()
     except Exception as e:

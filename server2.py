@@ -3,6 +3,7 @@ from selenium import webdriver
 import os
 import shutil
 import time
+import datetime
 import re
 import pymysql
 
@@ -57,7 +58,7 @@ def checkOs(currentTime):
     else:
         if 'http://s8bar.com' in driver.current_url:
             if (computNum < 180):
-                sleep(1)
+                sleep(2)
                 computNum += 1
                 checkOs(currentTime)
             else:
@@ -69,7 +70,7 @@ def getOs(cont,currentTime):
     succ = 'fs'
     js = "var divEles=arguments[0].children;var txt='';eachList(divEles);function eachList(data){for(var i=0;i<data.length;i++){var found=false;if(data[i].firstChild){txt=data[i].firstChild.nodeValue||'';}else{txt=data[i].innerText||'';};if(txt.indexOf('下载次数')>-1){var ev=data[i].parentNode;var child=ev.getElementsByTagName('a');var hf='';var cla='';for(var j=0;j<child.length;j++){hf=child[j].getAttribute('href');cla=child[j].getAttribute('class')||'';if(hf.indexOf('forum.php?mod')>-1&&cla.indexOf('xw1')<0){child[j].setAttribute('id','my-set-id');found=true;break;};};};if(!found){var childList=data[i].children;eachList(childList);};};};"
     driver.execute_script(js,cont)
-    sleep(1)
+    sleep(2)
     try:
         ev = driver.find_element_by_id('my-set-id')
     except Exception as e:
@@ -102,7 +103,7 @@ def getListDetail(arr):
             else:
                 try:
                     if dataType == 'video':
-                        video = driver.find_element_by_class_name("playerWrap").find_element_by_tag_name('video').get_attribute('src')
+                        video = driver.find_element_by_class_name("playerWrap").get_attribute('data-normal')
                         driver.execute_script("var self = document.getElementsByClassName('playerWrap')[0];self.parentNode.removeChild(self);")
                     cont = driver.find_element_by_xpath('//*[@id="postlist"]/div').find_element_by_class_name('pcb')
                     contHtml = cont.get_attribute('innerHTML')
@@ -172,16 +173,29 @@ def geUrltList ():
         else:
             getListDetail(arr)
 def getPage(url):
-    sleep(5)
+    sleep(3)
     try:
         driver.execute_script("document.location.href=arguments[0]", url)
     except Exception as e:
         print('getPage------出错', e)
         getPage(url)
     else:
-        driver.implicitly_wait(6)
+        driver.implicitly_wait(3)
         sleep(2)
         geUrltList()
+def section(ulList, second):
+    global tableName
+    global dataType
+    for i in range(len(ulList)):
+        tableName = ulList[i]['name']
+        dataType = ulList[i]['type']
+        getPage(ulList[i]['url'])
+        sleep(2)
+    driver.quit()
+    conn.close()
+    cursor.close()
+    sleep(second)  #休息一天86400
+    init()           
 def init():
     try:
         getDriver()
@@ -199,21 +213,26 @@ def init():
             {'url': 'http://s8bar.com/forum-234-1.html', 'name': 'sanji', 'type': 'download'},
             {'url': 'http://s8bar.com/forum-723-1.html', 'name': 'wuma', 'type': 'download'},
             {'url': 'http://s8bar.com/forum-525-1.html', 'name': 'oumei', 'type': 'download'},
-            {'url': 'http://s8bar.com/forum-136-1.html', 'name': 'dongman', 'type': 'download'},
-            {'url': 'http://s8bar.com/forum-307-1.html', 'name': 'wumavideo', 'type': 'video'}
+            {'url': 'http://s8bar.com/forum-136-1.html', 'name': 'dongman', 'type': 'download'}
         ]
-        global tableName
-        global dataType
-        for i in range(len(arrUrl)):
-            tableName = arrUrl[i]['name']
-            dataType = arrUrl[i]['type']
-            getPage(arrUrl[i]['url'])
-            sleep(3)
-        driver.quit()
-        conn.close()
-        cursor.close()
-        sleep(86400)  #休息一天86400
-        init()     
+        arrUrl2 = [
+            {'url': 'http://s8bar.com/forum-307-1.html', 'name': 'wumavideo', 'type': 'video'},
+            {'url': 'http://s8bar.com/forum-180-1.html', 'name': 'sanjivideo', 'type': 'video'},
+            {'url': 'http://s8bar.com/forum-289-1.html', 'name': 'dongmanvideo', 'type': 'video'},
+            {'url': 'http://s8bar.com/forum-222-1.html', 'name': 'youmavideo', 'type': 'video'},
+            {'url': 'http://s8bar.com/forum-27-1.html', 'name': 'oumeivideo', 'type': 'video'},
+            {'url': 'http://s8bar.com/forum-181-1.html', 'name': 'zipaivideo', 'type': 'video'}
+        ]
+        if dataType == 'download':
+            tom = datetime.date.today() + datetime.timedelta(days=1)
+            twelve = datetime.time(3,0,0)
+            tomTwelve = datetime.datetime.combine(tom, twelve)
+            tomTwelveSec = time.mktime(time.strptime(str(tomTwelve), '%Y-%m-%d %H:%M:%S'))
+            currentT = time.time()
+            section(arrUrl2, int(tomTwelveSec - currentT))
+        else:
+            section(arrUrl, 10)
+          
 if __name__ == "__main__": 
     init()
 # getListDetail('http://s8bar.com/thread-9227434-1-1.html')
