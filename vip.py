@@ -93,13 +93,14 @@ def getPage():
         geUrltList()
         num -= 1
         if num == 0:
+           num = 1
            print('end=====') 
         else:
            getPage()
 def init():
     try:
         getDriver()
-        driver.get('https://51xiaoluoli.site') #+obj['url']
+        driver.get('https://51xiaoluoli.bid') #+obj['url']
         # driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
         # driver.find_element_by_id('ls_password').send_keys('ashun666')
         # driver.find_element_by_class_name('mem_login').click()
