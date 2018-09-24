@@ -4,18 +4,24 @@ from selenium import webdriver
 import os
 import shutil
 import time
+import datetime
 import re
 import pymysql
 import pdb
 
-conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='ashun666', db='vip', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
-cursor = conn.cursor()
-num = 3 #530
+
+num = 1 #530
 driver = ''
+conn = ''
+cursor = ''
 exePath = "/Users/ashun/project/python/geckodriver"
 
 def getDriver():
     global driver
+    global conn
+    global cursor
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='ashun666', db='vip', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
+    cursor = conn.cursor()
     driver = webdriver.Firefox(executable_path = exePath)
 
 #做一个等待的通用方法
@@ -26,7 +32,6 @@ def getListDetail(arr):
     for i in range(len(arr)):
         if arr[i]['url']:
             try:
-                print('page----',arr[i]['url'])   
                 driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
                 driver.implicitly_wait(6)
                 sleep(3)
@@ -35,7 +40,6 @@ def getListDetail(arr):
             else:
                 try:
                     video = driver.find_element_by_id('content').find_element_by_tag_name('video').get_attribute('src')
-                    print('video', video)
                     currentTime = int(time.time())
                 except Exception as e:
                     print('get-detail-cont-wrong=====', e)
@@ -77,7 +81,6 @@ def geUrltList ():
             sleep(10)
             geUrltList()
         else:
-            print('arr', arr)
             getListDetail(arr)
 def getPage():
     global num
@@ -93,23 +96,45 @@ def getPage():
         geUrltList()
         num -= 1
         if num == 0:
-           num = 1
-           print('end=====') 
+            num = 1
+            tom = datetime.date.today() + datetime.timedelta(days=1)
+            twelve = datetime.time(3,0,0)
+            tomTwelve = datetime.datetime.combine(tom, twelve)
+            tomTwelveSec = time.mktime(time.strptime(str(tomTwelve), '%Y-%m-%d %H:%M:%S'))
+            currentT = time.time()
+            print('end=====') 
+            driver.quit()
+            conn.close()
+            cursor.close()
+            sleep(int(tomTwelveSec - currentT))
+            # sleep(10)
+            init()
         else:
-           getPage()
+            getPage()
+            
+def getInsidePage():
+    try:
+        url = driver.find_element_by_xpath('//*/h2/a').get_attribute('href')
+        print(url, '1-------')
+        driver.execute_script("document.location.href=arguments[0]", url)
+    except Exception as e:
+        print('init-------wrong', e)
+        sleep(10)
+        getInsidePage()
+    else:
+        driver.implicitly_wait(6)
+        sleep(3)
+        getPage()    
 def init():
     try:
         getDriver()
-        driver.get('https://51xiaoluoli.bid') #+obj['url']
-        # driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
-        # driver.find_element_by_id('ls_password').send_keys('ashun666')
-        # driver.find_element_by_class_name('mem_login').click()
-        driver.implicitly_wait(6)
+        driver.get('https://51xiaoluoli.com')
     except Exception as e:
         print('init-------wrong', e)
         sleep(10)
         init()
-    else:    
-        getPage()
+    else:
+        driver.implicitly_wait(6)
+        getInsidePage()
 if __name__ == "__main__":
     init() 
