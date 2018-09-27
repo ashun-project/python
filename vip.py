@@ -34,7 +34,6 @@ def getListDetail(arr):
             try:
                 driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
                 driver.implicitly_wait(6)
-                sleep(3)
             except Exception as e:
                 print('get-detail-wrong====', e)
             else:
@@ -58,6 +57,7 @@ def getListDetail(arr):
                     else:
                         if len(results) <= 0:
                             conn.commit()
+                            sleep(3)
         else:
             print ('url not true') 
 
@@ -81,6 +81,7 @@ def geUrltList ():
             sleep(10)
             geUrltList()
         else:
+            sleep(3)
             getListDetail(arr)
 def getPage():
     global num
