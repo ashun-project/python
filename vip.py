@@ -98,7 +98,7 @@ def getPage():
         if num == 0:
             num = 1
             tom = datetime.date.today() + datetime.timedelta(days=1)
-            twelve = datetime.time(3,0,0)
+            twelve = datetime.time(8,0,0)
             tomTwelve = datetime.datetime.combine(tom, twelve)
             tomTwelveSec = time.mktime(time.strptime(str(tomTwelve), '%Y-%m-%d %H:%M:%S'))
             currentT = time.time()
