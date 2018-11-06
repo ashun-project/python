@@ -47,30 +47,30 @@ def sleep(sec=9):
     time.sleep(sec)
 
 def goRich():
-    for link in driver.find_elements_by_xpath("//*[@href]"):
+    alist = driver.find_elements_by_xpath("//*[@href]")
+    for link in alist:
         if 'https://jump.yuyue006.cn' in link.get_attribute('href'): 
             try:
                 driver.execute_script('document.location=arguments[0]', link.get_attribute('href'))
             except Exception as e:
                 print('nothing', e)
             else:
-                if num > 30:
+                if num > 20:
                     sleep(3)
                     driver.find_element_by_tag_name('body').click()
                 else:
                     sleep(1)
-        elif 'http://70e.info' in link.get_attribute('href'):  #麒麟
-            if num > 60:
-                try:
-                    driver.execute_script('document.location=arguments[0]', link.get_attribute('href'))
-                except Exception as e:
-                    print('nothing', e)
-                else:
-                    if num > 30:
-                        sleep(3)
-                        driver.find_element_by_tag_name('body').click()
-                    else:
-                        sleep(1)
+        # elif 'http://70e.info' in link.get_attribute('href'):  #麒麟
+        #         try:
+        #             driver.execute_script('document.location=arguments[0]', link.get_attribute('href'))
+        #         except Exception as e:
+        #             print('nothing', e)
+        #         else:
+        #             if num > 30:
+        #                 sleep(3)
+        #                 driver.find_element_by_tag_name('body').click()
+        #             else:
+        #                 sleep(1)
 
 def changePage(randomNum):
     try:
@@ -95,8 +95,8 @@ def getInsidePage():
     randomNum = random.randint(0,10)
     if randomNum > 3:
         changePage(randomNum)
-    sleep(5)
-    if (num % 5) == 0:
+    sleep(3)
+    if (num % 2) == 0:
         goRich()
     if num == 100:
         num = 0     

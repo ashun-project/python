@@ -7,30 +7,31 @@ import datetime
 import re
 import pymysql
 
-path = "E:\\project\\python\\nothing\\"
-path2 = "E:\\project\\python\\nothing"
-replacePath = "E:\\project\\python\\"
-replacePath2 = "E:\\project\\ashun\\server\\"
-exePath = "E:\\project\\python\\geckodriver.exe"
+path = "C:\\project\\python\\nothing\\"
+path2 = "C:\\project\\python\\nothing"
+replacePath = "C:\\project\\python\\"
+replacePath2 = "C:\\project\\ashun\\server\\"
+exePath = "C:\\project\\python\\geckodriver.exe"
 computNum = 1
 driver = ''
 conn = ''
 cursor = ''
 tableName = ''
 dataType = ''
+num = 1
 
 def getDriver():
     global driver
     global conn
     global cursor
-    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='wangboshun', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='ashun666', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
     cursor = conn.cursor()
     profile = webdriver.FirefoxProfile()
     profile.set_preference('browser.download.dir', path)
     profile.set_preference('browser.download.folderList', 2)
     profile.set_preference('browser.download.manager.showWhenStarting', False)
     profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream,application/zip')
-    driver = webdriver.Firefox(executable_path = exePath, firefox_profile=profile)
+    driver = webdriver.Firefox(firefox_profile=profile)
 
 #做一个等待的通用方法
 def sleep(sec=9):
@@ -51,7 +52,7 @@ def checkOs(currentTime):
             else:
                 os.rename(path+i, path + name + '.' + bb)
                 oldname =  path + name + '.' + bb
-                shutil.copyfile(oldname,replacePath+tableName+'\\' + name + '.' + bb)
+                # shutil.copyfile(oldname,replacePath+tableName+'\\' + name + '.' + bb)
                 shutil.copyfile(oldname,replacePath2+tableName+'\\' + name + '.' + bb)
                 os.remove(oldname)
                 computNum = 0
@@ -88,7 +89,10 @@ def getOs(cont,currentTime):
         print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
-        checkOs(currentTime)
+        if 'http://s8bar.com' in driver.current_url:
+            checkOs(currentTime)
+        else:  
+            print('下载url出错') 
      
 def getListDetail(arr):
     for i in range(len(arr)):
@@ -112,8 +116,8 @@ def getListDetail(arr):
                     print('获取详情内容时出错', e)
                 else:
                     if dataType == 'video':
-                        addList = "INSERT INTO "+tableName+"list(createTime,url,title,img,type)values('%d','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], 'all')
-                        addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content, video)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video)
+                        addList = "INSERT INTO "+tableName+"list(createTime,url,title,img,type)values('%d','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], tableName)
+                        addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content, video, title)values('%d','%s','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video, arr[i]['txt'])
                     else:    
                         addList = "INSERT INTO "+tableName+"list(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
                         addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
@@ -180,9 +184,13 @@ def getPage(url):
         print('getPage------出错', e)
         getPage(url)
     else:
-        driver.implicitly_wait(3)
-        sleep(2)
-        geUrltList()
+        if 'http://s8bar.com' in driver.current_url:
+            driver.implicitly_wait(3)
+            sleep(2)
+            geUrltList()
+        else:   
+            print('获取getPage的url出错')
+            getPage(url)
 def section(ulList, second):
     global tableName
     global dataType
@@ -194,12 +202,18 @@ def section(ulList, second):
     driver.quit()
     conn.close()
     cursor.close()
-    sleep(second)  #休息一天86400
+    # if num == 1:
+    #     sleep(86400)
+    # else:
+    #     sleep(5)  #休息一天86400  second
+    sleep(second)    
     init()           
 def init():
+    global num
     try:
         getDriver()
         driver.get('http://s8bar.com/') #+obj['url']
+        sleep(3)
         driver.find_element_by_id('goin').click()
         driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
         driver.find_element_by_id('ls_password').send_keys('ashun666')
@@ -209,29 +223,41 @@ def init():
         print('init-------出错', e)
         init()
     else:
-        arrUrl = [
-            {'url': 'http://s8bar.com/forum-234-1.html', 'name': 'sanji', 'type': 'download'},
-            {'url': 'http://s8bar.com/forum-723-1.html', 'name': 'wuma', 'type': 'download'},
-            {'url': 'http://s8bar.com/forum-525-1.html', 'name': 'oumei', 'type': 'download'},
-            {'url': 'http://s8bar.com/forum-136-1.html', 'name': 'dongman', 'type': 'download'}
-        ]
-        arrUrl2 = [
-            {'url': 'http://s8bar.com/forum-307-1.html', 'name': 'wumavideo', 'type': 'video'},
-            {'url': 'http://s8bar.com/forum-180-1.html', 'name': 'sanjivideo', 'type': 'video'},
-            {'url': 'http://s8bar.com/forum-289-1.html', 'name': 'dongmanvideo', 'type': 'video'},
-            {'url': 'http://s8bar.com/forum-222-1.html', 'name': 'youmavideo', 'type': 'video'},
-            {'url': 'http://s8bar.com/forum-27-1.html', 'name': 'oumeivideo', 'type': 'video'},
-            {'url': 'http://s8bar.com/forum-181-1.html', 'name': 'zipaivideo', 'type': 'video'}
-        ]
-        if dataType == 'download':
+        if 'http://s8bar.com' in driver.current_url:
+            # arrUrl = [
+            #     {'url': 'http://s8bar.com/forum-234-'+ str(num) +'.html', 'name': 'sanji', 'type': 'download'},
+            #     {'url': 'http://s8bar.com/forum-723-'+ str(num) +'.html', 'name': 'wuma', 'type': 'download'},
+            #     {'url': 'http://s8bar.com/forum-525-'+ str(num) +'.html', 'name': 'oumei', 'type': 'download'},
+            #     {'url': 'http://s8bar.com/forum-136-'+ str(num) +'.html', 'name': 'dongman', 'type': 'download'}
+            # ]
+            arrUrl2 = [
+                {'url': 'http://s8bar.com/forum-307-'+ str(num) +'.html', 'name': 'wumavideo', 'type': 'video'},
+                {'url': 'http://s8bar.com/forum-180-'+ str(num) +'.html', 'name': 'sanjivideo', 'type': 'video'},
+                {'url': 'http://s8bar.com/forum-289-'+ str(num) +'.html', 'name': 'dongmanvideo', 'type': 'video'},
+                {'url': 'http://s8bar.com/forum-222-'+ str(num) +'.html', 'name': 'youmavideo', 'type': 'video'},
+                {'url': 'http://s8bar.com/forum-27-'+ str(num) +'.html', 'name': 'oumeivideo', 'type': 'video'},
+                {'url': 'http://s8bar.com/forum-181-'+ str(num) +'.html', 'name': 'zipaivideo', 'type': 'video'},
+                {'url': 'http://s8bar.com/forum-142-'+ str(num) +'.html', 'name': 'lingleivideo', 'type': 'video'}
+            ]
             tom = datetime.date.today() + datetime.timedelta(days=1)
             twelve = datetime.time(3,0,0)
             tomTwelve = datetime.datetime.combine(tom, twelve)
             tomTwelveSec = time.mktime(time.strptime(str(tomTwelve), '%Y-%m-%d %H:%M:%S'))
             currentT = time.time()
             section(arrUrl2, int(tomTwelveSec - currentT))
+            # if dataType == 'download':
+            #     tom = datetime.date.today() + datetime.timedelta(days=1)
+            #     twelve = datetime.time(3,0,0)
+            #     tomTwelve = datetime.datetime.combine(tom, twelve)
+            #     tomTwelveSec = time.mktime(time.strptime(str(tomTwelve), '%Y-%m-%d %H:%M:%S'))
+            #     currentT = time.time()
+            #     # num = num - 1
+            #     section(arrUrl2, int(tomTwelveSec - currentT))
+            # else:
+            #     section(arrUrl, 10)
         else:
-            section(arrUrl, 10)
+            print('init-获取URL出错')
+            init()
           
 if __name__ == "__main__": 
     init()
