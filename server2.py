@@ -24,14 +24,14 @@ def getDriver():
     global driver
     global conn
     global cursor
-    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='ashun666', db='down_list', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='ashun666', db='xinba', charset='utf8', cursorclass = pymysql.cursors.DictCursor)
     cursor = conn.cursor()
-    profile = webdriver.FirefoxProfile()
-    profile.set_preference('browser.download.dir', path)
-    profile.set_preference('browser.download.folderList', 2)
-    profile.set_preference('browser.download.manager.showWhenStarting', False)
-    profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream,application/zip')
-    driver = webdriver.Firefox(firefox_profile=profile)
+    profile = webdriver.ChromeOptions()
+    # profile.set_preference('browser.download.dir', path)
+    # profile.set_preference('browser.download.folderList', 2)
+    # profile.set_preference('browser.download.manager.showWhenStarting', False)
+    # profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream,application/zip')
+    driver = webdriver.Chrome(chrome_options=profile)
 
 #做一个等待的通用方法
 def sleep(sec=9):
@@ -96,47 +96,55 @@ def getOs(cont,currentTime):
      
 def getListDetail(arr):
     for i in range(len(arr)):
-        if arr[i]['url']:
-            try:
-                print(tableName,'页面----',arr[i]['url'])   
-                driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
-                driver.implicitly_wait(6)
-                sleep(3)
-            except Exception as e:
-                print('获取详情是出错-------', e)
-            else:
-                try:
-                    if dataType == 'video':
-                        video = driver.find_element_by_class_name("playerWrap").get_attribute('data-normal')
-                        driver.execute_script("var self = document.getElementsByClassName('playerWrap')[0];self.parentNode.removeChild(self);")
-                    cont = driver.find_element_by_xpath('//*[@id="postlist"]/div').find_element_by_class_name('pcb')
-                    contHtml = cont.get_attribute('innerHTML')
-                    currentTime = int(time.time())
-                except Exception as e:
-                    print('获取详情内容时出错', e)
-                else:
-                    if dataType == 'video':
-                        addList = "INSERT INTO "+tableName+"list(createTime,url,title,img,type)values('%d','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], tableName)
-                        addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content, video, title)values('%d','%s','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video, arr[i]['txt'])
-                    else:    
-                        addList = "INSERT INTO "+tableName+"list(createTime,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
-                        addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
-                    searchData = "SELECT * FROM "+tableName+"list WHERE title = '%s'" % (arr[i]['txt'])
-                    try:
-                        cursor.execute(searchData)
-                        results = cursor.fetchall()
-                        if len(results) <= 0:
-                            cursor.execute(addList)
-                            cursor.execute(addDetail)
-                    except Exception as e:
-                        print('执行数据操作出错', e)
-                    else:
-                        if len(results) <= 0:
-                            conn.commit()
-                            if dataType == 'download':
-                                getOs(cont, currentTime)
+        try:
+            print(tableName,'页面----',arr[i]['url'])   
+            driver.execute_script("document.location.href=arguments[0]", arr[i]['url'])
+            driver.implicitly_wait(6)
+            sleep(3)
+        except Exception as e:
+            print('获取详情是出错-------', e)
         else:
-            print ('url not true')                
+            try:
+                if dataType == 'video':
+                    video = driver.find_element_by_class_name("playerWrap").get_attribute('data-normal')
+                #     driver.execute_script("var self = document.getElementsByClassName('playerWrap')[0];self.parentNode.removeChild(self);")
+                # cont = driver.find_element_by_xpath('//*[@id="postlist"]/div').find_element_by_class_name('pcb')
+                # contHtml = cont.get_attribute('innerHTML')
+                currentTime = int(time.time())
+            except Exception as e:
+                print('获取详情内容时出错', e)
+            else:
+                if dataType == 'video':
+                    addList = "INSERT INTO "+tableName+"(create_time,url,title,img,type,video)values('%d','%s','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], tableName, video)
+                    # addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content, video, title)values('%d','%s','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video, arr[i]['txt'])
+                else:    
+                    addList = "INSERT INTO "+tableName+"(create_time,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
+                    # addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content)values('%d','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml))
+                try:
+                    cursor.execute(addList)
+                    # cursor.execute(addDetail)
+                except Exception as e:
+                    print('执行数据操作出错', e)
+                else:
+                    conn.commit()
+                    if dataType == 'download':
+                        getOs(cont, currentTime)
+def quchong (arr):
+    arr2 = []
+    for i in range(len(arr)):
+        if (bool(arr[i]['img'] and arr[i]['img'].strip()) and bool(arr[i]['url'] and arr[i]['url'].strip())):
+            searchData = "SELECT * FROM "+tableName+" WHERE url = '%s'" % (arr[i]['url'])
+            try:
+                cursor.execute(searchData)
+                results = cursor.fetchall()
+                if len(results) <= 0:
+                    arr2.append(arr[i])
+            except Exception as e:
+                print('search err', e)
+            if len(arr2) > 10:
+                break
+    getListDetail(arr2)
+
 def geUrltList ():
     try:
         result = driver.find_elements_by_css_selector(".no-b-border > a[class='s xst']")
@@ -175,7 +183,7 @@ def geUrltList ():
             print('获取列表出错', e)
             geUrltList()
         else:
-            getListDetail(arr)
+            quchong(arr)
 def getPage(url):
     sleep(3)
     try:
