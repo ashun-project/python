@@ -141,7 +141,7 @@ def quchong (arr):
                     arr2.append(arr[i])
             except Exception as e:
                 print('search err', e)
-            if len(arr2) > 10:
+            if len(arr2) > 9:
                 break
     getListDetail(arr2)
 
