@@ -115,7 +115,7 @@ def getListDetail(arr):
                 print('获取详情内容时出错', e)
             else:
                 if dataType == 'video':
-                    addList = "INSERT INTO "+tableName+"(create_time,url,title,img,type,video)values('%d','%s','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], tableName, video)
+                    addList = "INSERT INTO list_data(create_time,url,title,img,type,video)values('%d','%s','%s','%s','%s','%s')" % (currentTime, arr[i]['url'], arr[i]['txt'], arr[i]['img'], tableName, video)
                     # addDetail = "INSERT INTO "+tableName+"detail(createTime, url, content, video, title)values('%d','%s','%s','%s','%s')" % (currentTime,arr[i]['url'], conn.escape_string(contHtml), video, arr[i]['txt'])
                 else:    
                     addList = "INSERT INTO "+tableName+"(create_time,url,title,img)values('%d','%s','%s','%s')" % (currentTime,arr[i]['url'],arr[i]['txt'],arr[i]['img'])
@@ -239,13 +239,13 @@ def init():
             #     {'url': 'http://s8bar.com/forum-136-'+ str(num) +'.html', 'name': 'dongman', 'type': 'download'}
             # ]
             arrUrl2 = [
-                {'url': 'http://s8bar.com/forum-307-'+ str(num) +'.html', 'name': 'wumavideo', 'type': 'video'},
                 {'url': 'http://s8bar.com/forum-180-'+ str(num) +'.html', 'name': 'sanjivideo', 'type': 'video'},
                 {'url': 'http://s8bar.com/forum-289-'+ str(num) +'.html', 'name': 'dongmanvideo', 'type': 'video'},
                 {'url': 'http://s8bar.com/forum-222-'+ str(num) +'.html', 'name': 'youmavideo', 'type': 'video'},
                 {'url': 'http://s8bar.com/forum-27-'+ str(num) +'.html', 'name': 'oumeivideo', 'type': 'video'},
                 {'url': 'http://s8bar.com/forum-181-'+ str(num) +'.html', 'name': 'zipaivideo', 'type': 'video'},
-                {'url': 'http://s8bar.com/forum-142-'+ str(num) +'.html', 'name': 'lingleivideo', 'type': 'video'}
+                {'url': 'http://s8bar.com/forum-142-'+ str(num) +'.html', 'name': 'lingleivideo', 'type': 'video'},
+                {'url': 'http://s8bar.com/forum-307-'+ str(num) +'.html', 'name': 'wumavideo', 'type': 'video'}
             ]
             tom = datetime.date.today() + datetime.timedelta(days=1)
             twelve = datetime.time(3,0,0)
