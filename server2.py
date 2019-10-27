@@ -57,7 +57,7 @@ def checkOs(currentTime):
                 os.remove(oldname)
                 computNum = 0
     else:
-        if 'http://s8bar.com' in driver.current_url:
+        if 'http://sex8.cc' in driver.current_url:
             if (computNum < 180):
                 sleep(2)
                 computNum += 1
@@ -89,7 +89,7 @@ def getOs(cont,currentTime):
         print('下载----',url)    
         driver.execute_script("document.location.href=arguments[0]", url)
         sleep(3)
-        if 'http://s8bar.com' in driver.current_url:
+        if 'http://sex8.cc' in driver.current_url:
             checkOs(currentTime)
         else:  
             print('下载url出错') 
@@ -192,7 +192,7 @@ def getPage(url):
         print('getPage------出错', e)
         getPage(url)
     else:
-        if 'http://s8bar.com' in driver.current_url:
+        if 'http://sex8.cc' in driver.current_url:
             driver.implicitly_wait(3)
             sleep(2)
             geUrltList()
@@ -220,7 +220,7 @@ def init():
     global num
     try:
         getDriver()
-        driver.get('http://s8bar.com/') #+obj['url']
+        driver.get('http://sex8.cc/') #+obj['url']
         sleep(3)
         driver.find_element_by_id('goin').click()
         driver.find_element_by_id('ls_username').send_keys('ashun6') #sexlookashun,ashun6
@@ -231,21 +231,21 @@ def init():
         print('init-------出错', e)
         init()
     else:
-        if 'http://s8bar.com' in driver.current_url:
+        if 'http://sex8.cc' in driver.current_url:
             # arrUrl = [
-            #     {'url': 'http://s8bar.com/forum-234-'+ str(num) +'.html', 'name': 'sanji', 'type': 'download'},
-            #     {'url': 'http://s8bar.com/forum-723-'+ str(num) +'.html', 'name': 'wuma', 'type': 'download'},
-            #     {'url': 'http://s8bar.com/forum-525-'+ str(num) +'.html', 'name': 'oumei', 'type': 'download'},
-            #     {'url': 'http://s8bar.com/forum-136-'+ str(num) +'.html', 'name': 'dongman', 'type': 'download'}
+            #     {'url': 'http://sex8.cc/forum-234-'+ str(num) +'.html', 'name': 'sanji', 'type': 'download'},
+            #     {'url': 'http://sex8.cc/forum-723-'+ str(num) +'.html', 'name': 'wuma', 'type': 'download'},
+            #     {'url': 'http://sex8.cc/forum-525-'+ str(num) +'.html', 'name': 'oumei', 'type': 'download'},
+            #     {'url': 'http://sex8.cc/forum-136-'+ str(num) +'.html', 'name': 'dongman', 'type': 'download'}
             # ]
             arrUrl2 = [
-                {'url': 'http://s8bar.com/forum-180-'+ str(num) +'.html', 'name': 'sanjivideo', 'type': 'video'},
-                {'url': 'http://s8bar.com/forum-289-'+ str(num) +'.html', 'name': 'dongmanvideo', 'type': 'video'},
-                {'url': 'http://s8bar.com/forum-222-'+ str(num) +'.html', 'name': 'youmavideo', 'type': 'video'},
-                {'url': 'http://s8bar.com/forum-27-'+ str(num) +'.html', 'name': 'oumeivideo', 'type': 'video'},
-                {'url': 'http://s8bar.com/forum-181-'+ str(num) +'.html', 'name': 'zipaivideo', 'type': 'video'},
-                {'url': 'http://s8bar.com/forum-142-'+ str(num) +'.html', 'name': 'lingleivideo', 'type': 'video'},
-                {'url': 'http://s8bar.com/forum-307-'+ str(num) +'.html', 'name': 'wumavideo', 'type': 'video'}
+                {'url': 'http://sex8.cc/forum-180-'+ str(num) +'.html', 'name': 'sanjivideo', 'type': 'video'},
+                {'url': 'http://sex8.cc/forum-289-'+ str(num) +'.html', 'name': 'dongmanvideo', 'type': 'video'},
+                {'url': 'http://sex8.cc/forum-222-'+ str(num) +'.html', 'name': 'youmavideo', 'type': 'video'},
+                {'url': 'http://sex8.cc/forum-27-'+ str(num) +'.html', 'name': 'oumeivideo', 'type': 'video'},
+                {'url': 'http://sex8.cc/forum-181-'+ str(num) +'.html', 'name': 'zipaivideo', 'type': 'video'},
+                {'url': 'http://sex8.cc/forum-142-'+ str(num) +'.html', 'name': 'lingleivideo', 'type': 'video'},
+                {'url': 'http://sex8.cc/forum-307-'+ str(num) +'.html', 'name': 'wumavideo', 'type': 'video'}
             ]
             tom = datetime.date.today() + datetime.timedelta(days=1)
             twelve = datetime.time(3,0,0)
@@ -269,5 +269,5 @@ def init():
           
 if __name__ == "__main__": 
     init()
-# getListDetail('http://s8bar.com/thread-9227434-1-1.html')
+# getListDetail('http://sex8.cc/thread-9227434-1-1.html')
 # driver.close()
